@@ -1,0 +1,20 @@
+.PHONY: dev test
+IMAGE=nimlang/nim:2.2.6-alpine-slim
+
+dev-fetcher:
+	@docker run --rm -it \
+		-v $(PWD):/app \
+		-w /app \
+		--env-file .env \
+		$(IMAGE) \
+		nim r -d:ssl --hints:off src/fetcher.nim
+
+test:
+	@docker run --rm -it \
+		-v $(PWD):/app \
+		-w /app \
+		$(IMAGE) \
+		nim r --hints:off tests/test_all.nim
+
+build:
+	docker build -t main .
