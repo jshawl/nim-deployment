@@ -20,4 +20,5 @@ when isMainModule:
   let baseUrl: string = os.getEnv("BASE_URL")
   let fetcher: DataFetcher = newDataFetcher(realHttpGet, baseUrl)
   let result = fetchData(fetcher)
+  echo "done:"
   echo result
