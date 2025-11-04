@@ -1,6 +1,6 @@
 import db_connector/db_sqlite
 import json
-import std / [net, ssl_certs, httpclient, os]
+import std / [net, httpclient, os]
 import std/net
 
 type
@@ -14,7 +14,10 @@ proc newDataFetcher*(httpGet: HttpGetProc, url: string): DataFetcher =
   DataFetcher(httpGet: httpGet, url: url)
 
 proc realHttpGet*(url: string): string =
-  newHttpClient(sslContext=newContext(verifyMode=CVerifyPeer,caFile="/etc/ssl/ca-certificates.crt")).getContent(url)
+  const embeddedCaCerts = staticRead("/etc/ssl/certs/ca-certificates.crt")
+  let certFile = getTempDir() / "ca-certificates.crt"
+  writeFile(certFile, embeddedCaCerts)
+  newHttpClient(sslContext=newContext(verifyMode=CVerifyPeer,caFile=certFile)).getContent(url)
 
 proc setupDb*(dir: string): DbConn =
   let db = open(dir & "mytest.db", "", "", "")
