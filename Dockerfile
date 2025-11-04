@@ -13,7 +13,8 @@ RUN nim c \
     --out:fetcher \
     src/fetcher.nim
 RUN strip --strip-all fetcher
-FROM gcr.io/distroless/static
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/ca-certificates.crt
 COPY --from=builder /app/fetcher /app/fetcher
 COPY --from=builder /usr/lib/libsqlite3.so.0 /usr/lib/
 COPY --from=builder /lib/ld-musl-*.so.1 /lib/
