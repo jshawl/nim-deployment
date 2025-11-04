@@ -18,3 +18,6 @@ test:
 
 build:
 	docker build -t main .
+
+fetcher:
+	docker run --rm -it --env-file=.env -v $(PWD)/db:/app/db main /app/fetcher

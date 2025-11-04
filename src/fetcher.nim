@@ -23,7 +23,7 @@ when isMainModule:
   let result = fetchData(fetcher)
   echo "done:"
   echo result
-  let db = open("mytest.db", "", "", "")
+  let db = open("db/mytest.db", "", "", "")
   db.exec(sql"CREATE TABLE IF NOT EXISTS items (id INTEGER, name TEXT)")
 
   for item in 1..10:
