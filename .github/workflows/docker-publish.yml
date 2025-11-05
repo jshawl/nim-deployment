@@ -33,6 +33,8 @@ jobs:
           tags: main:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: git config
+        run: git config --global --add safe.directory /app
       - name: Test
         run: mkdir -p db/ && make build-dev && make test
 
