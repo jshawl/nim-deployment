@@ -1,5 +1,5 @@
 import json
-import std / [net, httpclient, os, times]
+import std / [net, httpclient, os, times, strformat]
 import ./database
 import ./logger
 
@@ -29,19 +29,26 @@ proc realHttpGet*(url: string): string =
 
 proc fetchData*(db: DbConn, f: DataFetcher): JsonNode =
   result = parseJson(f.httpGet(f.url))
-  try:
-    let event = Event(
-      created_at: parse(result["Date"].getStr(), "yyyy-MM-dd'T'HH:mm:ss'.'fff'Z'", utc()),
-      lat: result["Latitude"].getFloat(),
-      lon: result["Longitude"].getFloat()
-    )
-    insert(db, event)
-    info("inserted 1 row")
-  except:
-    warn(getCurrentExceptionMsg())
+  var inserted = 0
+  let results = result["Data"]
+  for datum in results:
+    try:
+      let event = Event(
+        created_at: parse(datum["Date"].getStr(), "yyyy-MM-dd'T'HH:mm:sszzz", utc()),
+        lat: datum["Latitude"].getFloat(),
+        lon: datum["Longitude"].getFloat()
+      )
+      insert(db, event)
+      inc inserted
+    except: discard
+  info(fmt"inserted {inserted}/{results.len} events")
 
 when isMainModule:
-  let baseUrl: string = os.getEnv("BASE_URL")
+  let yesterday = now() - 1.days
+  let dateFrom = yesterday.format("yyyy-MM-dd")
+  let tomorrow = now() + 1.days
+  let dateTo = tomorrow.format("yyyy-MM-dd")
+  let baseUrl: string = os.getEnv("BASE_URL") & "&from=" & dateFrom & "&to=" & dateTo
   let fetcher: DataFetcher = newDataFetcher(realHttpGet, baseUrl)
   let db = setupDb("db/")
   let oneHourInMilliseconds = 1000 * 60 * 60
