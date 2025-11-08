@@ -1,9 +1,5 @@
 import std / [json, times]
-
-type
-  Event = object
-    time: DateTime
-    lat, lon: float
+import ./database
 
 proc parseTime(time: string): DateTime =
     parse(time, "yyyyMMdd'T'HHmmssZZZ")
@@ -15,7 +11,7 @@ proc parseEvents*(file: string): seq[Event] =
             case segment["type"].getStr()
             of "place":
                 result.add Event(
-                    time: parseTime(segment["startTime"].getStr()),
+                    created_at: parseTime(segment["startTime"].getStr()),
                     lat: segment["place"]["location"]["lat"].getFloat(),
                     lon: segment["place"]["location"]["lon"].getFloat()
                 )
@@ -23,7 +19,7 @@ proc parseEvents*(file: string): seq[Event] =
                 for activity in segment["activities"]:
                     for trackPoint in activity["trackPoints"]:
                         result.add Event(
-                            time: parseTime(trackPoint["time"].getStr()),
+                            created_at: parseTime(trackPoint["time"].getStr()),
                             lat: trackPoint["lat"].getFloat(),
                             lon: trackPoint["lon"].getFloat()
                         )

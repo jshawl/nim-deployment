@@ -1,5 +1,5 @@
 import json
-import std / [net, httpclient, os, posix, logging]
+import std / [net, httpclient, os, logging, times]
 import ./database
 
 var logger = newConsoleLogger(fmtStr="[$datetime] - $levelname: ")
@@ -30,7 +30,12 @@ proc realHttpGet*(url: string): string =
 proc fetchData*(db: DbConn, f: DataFetcher): JsonNode =
   result = parseJson(f.httpGet(f.url))
   try:
-    insert(db, $result["created_at"])
+    let event = Event(
+      created_at: parse(result["Date"].getStr(), "yyyy-MM-dd'T'HH:mm:ss'.'fff'Z'", utc()),
+      lat: result["Latitude"].getFloat(),
+      lon: result["Longitude"].getFloat()
+    )
+    insert(db, event)
     logger.log(lvlInfo, "inserted 1 row")
   except:
     logger.log(lvlWarn, getCurrentExceptionMsg())
