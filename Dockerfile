@@ -7,5 +7,5 @@ RUN nimble install
 
 FROM scratch
 COPY --from=builder /tmp /tmp
-COPY --from=builder /app/build/fetcher /app/build/fetcher
+COPY --from=builder /app/build/ /app/build/
 WORKDIR /app

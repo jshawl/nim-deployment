@@ -6,6 +6,9 @@ build:
 test:
 	docker compose --file docker-compose.dev.yml run --rm test nimble test
 
+importer:
+	docker compose --file docker-compose.dev.yml run --rm importer /app/tests/data.json
+
 worker:
 	docker compose run --rm worker
 
