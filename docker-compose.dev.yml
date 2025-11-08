@@ -11,6 +11,20 @@ services:
       - ./db:/app/db
     stop_signal: SIGINT
 
+  importer:
+    image: app
+    build:
+      context: .
+      target: builder
+    pull_policy: build
+    command: /app/build/importer
+    env_file: .env
+    volumes:
+      - ./tests:/app/tests/
+      - ./db:/app/db
+    stop_signal: SIGINT
+    entrypoint: ["/app/build/importer"]
+
   test:
     build:
       context: .

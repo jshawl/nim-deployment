@@ -1,4 +1,4 @@
-import std / [json, times]
+import std / [json, times, cmdline]
 import ./database
 
 proc parseTime(time: string): DateTime =
@@ -24,3 +24,18 @@ proc parseEvents*(file: string): seq[Event] =
                             lon: trackPoint["lon"].getFloat()
                         )
             else: discard
+
+proc importEvents*(db: DbConn, events: seq[Event]) =
+    for event in events:
+        db.insert(event)
+
+when isMainModule:
+    let db = setupDb("db/")
+    let events = parseEvents(paramStr(1))
+    for i, event in events:
+        if i mod 10 == 0:
+            stdout.write("\r" & $i & "/" & $events.len)
+            stdout.flushFile()
+        try:
+            db.insert(event)
+        except: discard
