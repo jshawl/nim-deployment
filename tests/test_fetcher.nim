@@ -28,7 +28,8 @@ suite "fetcher":
     discard fetchData(db, fetcher)
     let results = db.findMultiple()
     check results.len == 1
-    check results[0][0] == "2025-11-04T07:14:27.123Z"
+    # converted to utc
+    check results[0][0] == "2025-11-04T12:14:27.000Z"
     check parseFloat(results[0][1]) == 1.234
     check parseFloat(results[0][2]) == 5.678
     check results[0][3] == "s0hp10wsdfr8"
