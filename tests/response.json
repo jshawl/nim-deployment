@@ -1,1 +1,8 @@
-{ "created_at": "2025-11-04T07:14:27.123Z" }
+{
+  "Date": "2025-11-04T07:14:27.123Z",
+  "Latitude": 1.234,
+  "Longitude": 5.678,
+  "Speed(mph)": 0,
+  "Direction": 1,
+  "Accuracy": 1
+}
