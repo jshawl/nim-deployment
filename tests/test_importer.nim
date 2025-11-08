@@ -11,10 +11,13 @@ suite "importer":
     removeDir(tmpDir)
     db.closeConnection()
 
-  test "parseEvents":
+  test "parseEvents (json)":
     check parseEvents("tests/data.json").len == 2
     expect IOError:
       discard parseEvents("file-doesn't-exist.json")
+
+  test "parseEvents (sql)":
+    check parseEvents("tests/data.sql").len == 2
 
   test "importEvents":
     check db.findMultiple().len == 0
