@@ -1,10 +1,10 @@
-import std / [json, times, cmdline]
+import std / [json, times, cmdline, strutils]
 import ./database
 
 proc parseTime(time: string): DateTime =
     parse(time, "yyyyMMdd'T'HHmmssZZZ")
 
-proc parseEvents*(file: string): seq[Event] =
+proc parseJsonEvents(file: string): seq[Event] =
     let data = parseFile(file)
     for entry in data:
         for segment in entry["segments"]:
@@ -24,6 +24,32 @@ proc parseEvents*(file: string): seq[Event] =
                             lon: trackPoint["lon"].getFloat()
                         )
             else: discard
+
+proc parseSqlEvents(file: string): seq[Event] =
+    let data = readFile(file)
+    let lines = data.split("\n")
+    var inBlock = false
+    for line in lines:
+        if line.startsWith("COPY \"public\".\"events\""):
+            inBlock = true
+        if inBlock and line.startsWith("\\."):
+            break
+        let seqTabs = line.rsplit("\t")
+        if inBlock and seqTabs.len > 1:
+            let date = parse(seqTabs[1], "yyyy-MM-dd HH:mm:ss")
+            let lat = parseFloat(seqTabs[2])
+            let lon = parseFloat(seqTabs[3])
+            result.add Event(
+                created_at: date,
+                lat: lat,
+                lon: lon
+            )
+
+proc parseEvents*(file: string): seq[Event] =
+    if file.endsWith(".json"):
+        result = parseJsonEvents(file)
+    if file.endsWith(".sql"):
+        result = parseSqlEvents(file)
 
 proc importEvents*(db: DbConn, events: seq[Event]) =
     for event in events:
