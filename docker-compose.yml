@@ -19,3 +19,22 @@ services:
   backups:
     <<: *common-config
     command: /app/build/backup
+
+  backup-uploader:
+    image: amazon/aws-cli
+    env_file: .env
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        while true; do
+          echo "[$(date -u +"%FT%T")] syncing to s3..."
+          aws s3 sync /app/db/ s3://$AWS_BUCKET_NAME/backups/ \
+            --exclude "*" \
+            --include "backup-*.db" \
+            --endpoint-url $AWS_ENDPOINT_URL
+          echo "[$(date -u +"%FT%T")] sync to s3 completed."
+          sleep 86400
+        done
+    volumes:
+      - ./db:/app/db
