@@ -18,6 +18,10 @@ services:
     <<: *common-config
     command: nimble test
 
+  frontend:
+    build:
+      context: frontend/
+
   proxy:
     build:
       context: proxy/

@@ -44,6 +44,13 @@ services:
     volumes:
       - ./db:/app/db
 
+  frontend:
+    image: ghcr.io/jshawl/nim-deployment-frontend:main
+    pull_policy: always
+    command: sh -c "cp -r /app/* /target/"
+    volumes:
+      - html:/target
+
   proxy:
     image: ghcr.io/jshawl/nim-deployment-proxy:main
     env_file: .env
@@ -58,4 +65,7 @@ services:
       exec nginx -g 'daemon off;'
       "
     volumes:
-      - ./public:/usr/share/nginx/html
+      - html:/usr/share/nginx/html
+
+volumes:
+  html:
