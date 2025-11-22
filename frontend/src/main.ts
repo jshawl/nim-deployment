@@ -90,7 +90,7 @@ function main() {
     { lat: 36, lon: -97 },
   ]);
 
-  map.addEventListener("move", (e) => {
+  map.addEventListener("move", () => {
     debounce(async () => {
       const { north, east, south, west } = map.getBounds();
       console.log("zoom:", map.getZoom());
