@@ -12,7 +12,7 @@ proc encode*(lat, lon: float, precision = 12): string =
     lonMax = 180.0
   result = newStringOfCap(precision)
 
-  while result.len < 12:
+  while result.len < precision:
     if evenBit:
       # bisect E-W longitude
       let lonMid = (lonMin + lonMax) / 2
@@ -71,3 +71,17 @@ proc neighbor*(hash: string, direction: string): string =
   if lastChr in BORDERS[direction][evenOdd]:
     base = neighbor(base, direction)
   base & Base32[NEIGHBORS[direction][evenOdd].find(lastChr)]
+
+proc sections*(north, east, south, west: float, precision: int): seq[string] =
+  let topLeft = encode(north, west, precision)
+  let topRight = encode(north, east, precision)
+  let bottomLeft = encode(south, west, precision)
+  let bottomRight = encode(south, east, precision)
+  result.add(topLeft)
+  while not result.contains(topRight):
+    result.add(neighbor(result[^1], "right"))
+  let cols = result.len
+  while not result.contains(bottomRight):
+    result.add(neighbor(result[^cols], "bottom"))
+    for i in 1..<cols:
+      result.add(neighbor(result[^1], "right"))

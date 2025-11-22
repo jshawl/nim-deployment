@@ -20,6 +20,10 @@ services:
     <<: *common-config
     command: nimble test
 
+  test-watch:
+    <<: *common-config
+    command: sh -c "find . -name '*.nim' | entr -rn nimble test"
+
   frontend:
     build:
       context: frontend/
