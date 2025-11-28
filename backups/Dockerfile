@@ -4,4 +4,4 @@ RUN dnf install -y sqlite
 WORKDIR /app
 COPY . .
 
-ENTRYPOINT ["/app/backup.sh"]
+CMD ["/app/backup.sh"]
