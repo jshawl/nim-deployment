@@ -1,0 +1,22 @@
+name: Docker (frontend)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - frontend/**
+  pull_request:
+    branches: ["main"]
+    paths:
+      - frontend/**
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/base.yml
+    with:
+      service: frontend
+      context: frontend/

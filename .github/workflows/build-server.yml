@@ -1,0 +1,23 @@
+name: Docker (server)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - server/**
+  pull_request:
+    branches: ["main"]
+    paths:
+      - server/**
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/base.yml
+    with:
+      service: server
+      context: server/
+      test-command: "mkdir -p server/db/ && make test"

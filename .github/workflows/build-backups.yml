@@ -1,0 +1,22 @@
+name: Docker (backups)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - backups/**
+  pull_request:
+    branches: ["main"]
+    paths:
+      - backups/**
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/base.yml
+    with:
+      service: backups
+      context: backups/
