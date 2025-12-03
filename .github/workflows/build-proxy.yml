@@ -20,4 +20,4 @@ jobs:
     with:
       service: proxy
       context: proxy/
-      test-command: "touch .env && docker compose run proxy nginx -t"
+      test-command: "docker compose run --entrypoint 'nginx -t' proxy"
