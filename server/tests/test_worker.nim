@@ -11,21 +11,21 @@ suite "worker":
     let tmpDir = createTempDir("tmp", "", "db")
     let db = setupDb(tmpDir & "/")
     let mockGet = createMockGet(readFile("tests/response.json"))
-    let fetcher = DataFetcher(httpGet: mockGet, url: "http://test")
+    let fetcher = DataFetcher(httpGet: mockGet)
   teardown:
     removeDir(tmpDir)
     db.closeConnection()
 
   test "fetchData inserts values":
     check db.findMultiple().len == 0
-    discard fetchData(db, fetcher)
+    discard fetchData(db, fetcher, "https://example.com/")
     check db.findMultiple().len == 1
 
   test "fetchData does not insert duplicate values":
     check db.findMultiple().len == 0
-    discard fetchData(db, fetcher)
-    discard fetchData(db, fetcher)
-    discard fetchData(db, fetcher)
+    discard fetchData(db, fetcher, "https://example.com/")
+    discard fetchData(db, fetcher, "https://example.com/")
+    discard fetchData(db, fetcher, "https://example.com/")
     let results = db.findMultiple()
     check results.len == 1
     # converted to utc
