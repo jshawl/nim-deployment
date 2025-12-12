@@ -10,50 +10,30 @@ proc handleSignal() {.noconv.} =
 
 setControlCHook(handleSignal)
 
-proc handleGetYears (db: DbConn): (HttpCode, string) =
-  let years = db.findYears()
-  let jsonObj = %* years
-  (Http200, jsonObj.pretty())
-
-proc handleGetMonths (db: DbConn, year: string): (HttpCode, string) =
-  let months = db.findMonths(year)
-  let jsonObj = %* months
-  (Http200, jsonObj.pretty())
-
-proc handleGetDays (db: DbConn, year: string, month: string): (HttpCode, string) =
-  let days = db.findDays(year, month)
-  let jsonObj = %* days
-  (Http200, jsonObj.pretty())
-
-proc handleGetGeoHashes (db: DbConn, north, east, south, west: float, precision: int): (HttpCode, string) =
-  let hashes = db.findGeoHashes(north, east, south, west, precision)
-  let jsonObj = %* hashes
-  (Http200, jsonObj.pretty())
-
-proc handleGetEvents (db: DbConn, fromParam, toParam: string): (HttpCode, string) =
-  let events = db.findMultipleEvents(fromParam, toParam)
-  let jsonObj = %* events
-  (Http200, jsonObj.pretty())
-
-proc handleRequest*(db: DbConn, path: string, queryParams: Table[string, string]): (HttpCode, string) =
+proc handleRequest*(db: DbConn, path: string, queryParams: Table[string, string]): (HttpCode, JsonNode) =
   case path
   of "/api/years":
-    return handleGetYears(db)
+    let years = db.findYears()
+    return (Http200, %* years)
   of "/api/geohashes":
     let north = parseFloat(queryParams["north"])
     let east = parseFloat(queryParams["east"])
     let south = parseFloat(queryParams["south"])
     let west = parseFloat(queryParams["west"])
     let precision = parseInt(queryParams["precision"])
-    return handleGetGeoHashes(db, north, east, south, west, precision)
+    let hashes = db.findGeoHashes(north, east, south, west, precision)
+    return (Http200, %* hashes)
   of "/api/months":
-    return handleGetMonths(db, queryParams["year"])
+    let months = db.findMonths(queryParams["year"])
+    return (Http200, %* months)
   of "/api/days":
-    return handleGetDays(db, queryParams["year"], queryParams["month"])
+    let days = db.findDays(queryParams["year"], queryParams["month"])
+    return (Http200, %* days)
   of "/api":
-    return handleGetEvents(db, queryParams["from"], queryParams["to"])
+    let events = db.findMultipleEvents(queryParams["from"], queryParams["to"])
+    return (Http200, %* events)
   else:
-    return (Http404, "Not found")
+    return (Http404, %* "Not found")
 
 proc main {.async.} =
   var server = newAsyncHttpServer()
@@ -64,7 +44,7 @@ proc main {.async.} =
       queryParams[key] = value
     let (code, body) = handleRequest(db, req.url.path, queryParams)
     let headers = {"Content-type": "application/json; charset=utf-8"}
-    await req.respond(code, body, headers.newHttpHeaders())
+    await req.respond(code, body.pretty(), headers.newHttpHeaders())
 
   server.listen(Port(8080)) # or Port(8080) to hardcode the standard HTTP port.
   let port = server.getPort

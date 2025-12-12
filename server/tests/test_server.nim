@@ -20,7 +20,7 @@ suite "server":
         let (code, body) = handleRequest(db, "/api/years", initTable[string, string]())
         check code == Http200
         let data = %*[{"year": 2000, "count": 1}]
-        check body == data.pretty()
+        check body == data
     test "/api/geohashes":
         let (code, body) = handleRequest(db, "/api/geohashes", {
           "north": "3.0",
@@ -31,17 +31,17 @@ suite "server":
         }.toTable)
         check code == Http200
         let data = %*["s05pp"]
-        check body == data.pretty()
+        check body == data
     test "/api/months":
         let (code, body) = handleRequest(db, "/api/months", {"year": "2000"}.toTable)
         check code == Http200
         let data = %*[{"month": "2000-01", "count": 1}]
-        check body == data.pretty()
+        check body == data
     test "/api/days":
         let (code, body) = handleRequest(db, "/api/days", {"year": "2000", "month": "01"}.toTable)
         check code == Http200
         let data = %*[{"day": "2000-01-01", "count": 1}]
-        check body == data.pretty()
+        check body == data
     test "/api":
         let (code, body) = handleRequest(db, "/api", {"from": "2000-01-01", "to": "2000-01-02"}.toTable)
         check code == Http200
@@ -50,4 +50,4 @@ suite "server":
            "lat": 1.23456,
            "lon": 4.56789
         }]
-        check body == data.pretty()
+        check body == data
