@@ -10,11 +10,9 @@ docker pull $IMAGE
 test_conf() {
     echo "🧪 testing $SCRIPT_DIR/$1"
     docker run --rm \
-        --add-host="server:127.0.0.1" \
-        --add-host="frontend:127.0.0.1" \
-        -v $SCRIPT_DIR/$1:/etc/nginx/nginx.conf \
-        --entrypoint bash nginx:1.29.3 \
-        -c "nginx -t"
+        -v $SCRIPT_DIR/Caddyfile:/etc/caddy/Caddyfile \
+        --entrypoint sh caddy \
+        -c "caddy validate --config /etc/caddy/Caddyfile"
     echo -e "✅ $1 is ok\n"
 }
 
@@ -27,5 +25,4 @@ cleanup() {
 
 trap cleanup EXIT
 
-test_conf nginx.dev.conf
-test_conf nginx.conf
+test_conf
