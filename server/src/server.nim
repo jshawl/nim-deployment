@@ -1,4 +1,4 @@
-import std / [asyncdispatch, asynchttpserver, json, uri, tables, strutils]
+import std / [asyncdispatch, asynchttpserver, json, uri, tables, strutils, sequtils]
 import ./database
 import ./logger
 
@@ -16,13 +16,17 @@ proc handleRequest*(db: DbConn, path: string, queryParams: Table[string, string]
     let years = db.findYears()
     return (Http200, %* years)
   of "/api/geohashes":
-    let north = parseFloat(queryParams["north"])
-    let east = parseFloat(queryParams["east"])
-    let south = parseFloat(queryParams["south"])
-    let west = parseFloat(queryParams["west"])
-    let precision = parseInt(queryParams["precision"])
-    let hashes = db.findGeoHashes(north, east, south, west, precision)
-    return (Http200, %* hashes)
+    let hasKeys = ["north", "east", "south", "west", "precision"]
+      .all(proc (key: string): bool = queryParams.hasKey(key))
+    if hasKeys:
+      let north = parseFloat(queryParams["north"])
+      let east = parseFloat(queryParams["east"])
+      let south = parseFloat(queryParams["south"])
+      let west = parseFloat(queryParams["west"])
+      let precision = parseInt(queryParams["precision"])
+      let hashes = db.findGeoHashes(north, east, south, west, precision)
+      return (Http200, %* hashes)
+    return (Http400, %* "missing keys")
   of "/api/months":
     let months = db.findMonths(queryParams["year"])
     return (Http200, %* months)
