@@ -1,5 +1,6 @@
 {
 	auto_https {$AUTO_HTTPS}
+	admin off
 }
 
 localhost:80 {
@@ -20,7 +21,6 @@ geo.jshawl.com {
 			ttl 24h
 			stale 24h
 			mode bypass_request
-			max_size 50MB
 		}
 		reverse_proxy server:8080
 	}
