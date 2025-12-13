@@ -1,0 +1,18 @@
+localhost:80 {
+	reverse_proxy /api* server:8080
+	reverse_proxy frontend:5173
+}
+
+geo.jshawl.com {
+	basicauth {
+		{$HTTP_AUTH_USER} {$HTTP_AUTH_PASSWORD}
+	}
+	root * /srv
+	handle /api* {
+		reverse_proxy server:8080
+	}
+	handle {
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+}

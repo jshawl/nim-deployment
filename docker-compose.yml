@@ -43,15 +43,16 @@ services:
     pull_policy: always
     ports:
       - "80:80"
+      - "443:443"
+      - "443:443/udp"
     links:
       - server
-    command: |
-      /bin/bash -c "
-      echo \$HTTP_AUTH_USER:\$(openssl passwd -apr1 \$HTTP_AUTH_PASSWORD) > /etc/nginx/.htpasswd
-      exec nginx -g 'daemon off;'
-      "
     volumes:
-      - html:/usr/share/nginx/html
+      - html:/srv
+      - caddy_data:/data
+      - caddy_config:/config
 
 volumes:
   html:
+  caddy_data:
+  caddy_config:
